@@ -50,12 +50,19 @@ export function ReportPage() {
       <form onSubmit={handleSubmit} className="form">
         <div className="form-group">
           <label htmlFor="issueType">Issue Type</label>
-          <input
+          <select
             id="issueType"
             value={issueType}
             onChange={(e) => setIssueType(e.target.value)}
-            placeholder="Select issue type (replace with dropdown)"
-          />
+            required
+          >
+            <option value="" disabled>Select issue type</option>
+            <option value="Bug">Bug</option>
+            <option value="Feature Request">Feature Request</option>
+            <option value="Improvement">Improvement</option>
+            <option value="Documentation">Documentation</option>
+            <option value="Other">Other</option>
+          </select>
         </div>
 
         <div className="form-group">

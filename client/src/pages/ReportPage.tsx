@@ -47,9 +47,11 @@ export function ReportPage() {
     <div className="page">
       <h1>Report a Bug</h1>
 
+      <p className="form-required-note"><span className="required-star">*</span> Required fields</p>
+
       <form onSubmit={handleSubmit} className="form">
         <div className="form-group">
-          <label htmlFor="issueType">Issue Type</label>
+          <label htmlFor="issueType">Issue Type <span className="required-star">*</span></label>
           <select
             id="issueType"
             value={issueType}
@@ -66,13 +68,14 @@ export function ReportPage() {
         </div>
 
         <div className="form-group">
-          <label htmlFor="description">Description</label>
+          <label htmlFor="description">Description <span className="required-star">*</span></label>
           <textarea
             id="description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Describe the issue..."
             rows={5}
+            required
           />
           {descriptionValidation.length > 0 && (
             <span className="validation-hint">
@@ -82,13 +85,14 @@ export function ReportPage() {
         </div>
 
         <div className="form-group">
-          <label htmlFor="contactName">Your Name</label>
+          <label htmlFor="contactName">Your Name <span className="required-star">*</span></label>
           <input
             type="text"
             id="contactName"
             value={contactName}
             onChange={(e) => setContactName(e.target.value)}
             placeholder="Enter your name"
+            required
           />
           {nameValidation.length > 0 && (
             <span className="validation-hint">
@@ -98,12 +102,14 @@ export function ReportPage() {
         </div>
 
         <div className="form-group">
-          <label htmlFor="contactEmail">Your Email</label>
+          <label htmlFor="contactEmail">Your Email <span className="required-star">*</span></label>
           <input
+            type="email"
             id="contactEmail"
             value={contactEmail}
             onChange={(e) => setContactEmail(e.target.value)}
-            placeholder="Enter your email"
+            placeholder="you@example.com"
+            required
           />
         </div>
 

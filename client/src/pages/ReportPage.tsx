@@ -4,11 +4,25 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { apiClient } from '../api/client';
 
+const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'application/pdf'];
+const MAX_SIZE = 5 * 1024 * 1024;
+
 const schema = z.object({
   issueType: z.string().min(1, 'Please select an issue type'),
   description: z.string().min(10, 'Description must be at least 10 characters'),
   contactName: z.string().min(2, 'Name must be at least 2 characters'),
   contactEmail: z.email('Please enter a valid email address'),
+  attachment: z
+    .custom<FileList>()
+    .optional()
+    .refine(
+      (files) => !files || files.length === 0 || files[0].size <= MAX_SIZE,
+      'File must be 5MB or less'
+    )
+    .refine(
+      (files) => !files || files.length === 0 || ALLOWED_TYPES.includes(files[0].type),
+      'Only PNG, JPG, and PDF files are allowed'
+    ),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -30,7 +44,11 @@ export function ReportPage() {
     setSubmitError('');
     setSubmitSuccess(false);
     try {
-      await apiClient.createReport(data);
+      const file = data.attachment?.[0];
+      await apiClient.createReport(
+        { issueType: data.issueType, description: data.description, contactName: data.contactName, contactEmail: data.contactEmail },
+        file
+      );
       setSubmitSuccess(true);
       reset();
     } catch {
@@ -110,12 +128,12 @@ export function ReportPage() {
           <input
             type="file"
             id="attachment"
-            disabled
-            title="TODO: Implement file upload"
+            accept=".png,.jpg,.jpeg,.pdf"
+            className={errors.attachment ? 'input-error' : ''}
+            {...register('attachment')}
           />
-          <small className="form-hint">
-            TODO: Implement attachment upload (PNG, JPG, PDF, max 5MB)
-          </small>
+          <small className="form-hint">Accepted formats: PNG, JPG, PDF — max 5MB</small>
+          {errors.attachment && <span className="field-error">{errors.attachment.message as string}</span>}
         </div>
 
         <button type="submit" className="btn btn-primary" disabled={isSubmitting}>

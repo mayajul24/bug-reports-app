@@ -33,7 +33,19 @@ class ApiClient {
     return this.request<Report[]>('/api/reports');
   }
 
-  async createReport(payload: CreateReportPayload): Promise<Report> {
+  private async sendReportWithAttachment<T>(endpoint: string, fields: Record<string, string>, file: File, fileField: string): Promise<T> {
+    const formData = new FormData();
+    Object.entries(fields).forEach(([key, value]) => formData.append(key, value));
+    formData.append(fileField, file);
+    const response = await fetch(`${this.baseUrl}${endpoint}`, { method: 'POST', body: formData });
+    if (!response.ok) throw new Error(`API Error: ${response.status} ${response.statusText}`);
+    return response.json();
+  }
+
+  async createReport(payload: CreateReportPayload, file?: File): Promise<Report> {
+    if (file) {
+      return this.sendReportWithAttachment<Report>('/api/reports', payload, file, 'attachment');
+    }
     return this.request<Report>('/api/reports', {
       method: 'POST',
       body: JSON.stringify(payload),

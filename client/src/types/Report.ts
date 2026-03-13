@@ -18,6 +18,7 @@ export interface CheckStatusResponse {
 }
 
 export interface CreateReportPayload {
+  [key: string]: string;
   issueType: string;
   description: string;
   contactName: string;

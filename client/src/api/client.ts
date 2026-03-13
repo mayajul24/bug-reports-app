@@ -1,4 +1,4 @@
-import { Report, CreateReportPayload } from '../types/Report';
+import { Report, CreateReportPayload, CheckStatusResponse } from '../types/Report';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
 
@@ -38,6 +38,10 @@ class ApiClient {
       method: 'POST',
       body: JSON.stringify(payload),
     });
+  }
+
+  async checkStatus(email: string): Promise<CheckStatusResponse> {
+    return this.request<CheckStatusResponse>(`/api/check-status?email=${encodeURIComponent(email)}`);
   }
 }
 

@@ -1,11 +1,14 @@
+import { useAuth } from '../context/AuthContext';
+
 export function ReportsPage() {
+  const { auth } = useAuth();
 
   return (
     <div className="page">
       <h1>Reports List</h1>
 
       <p className="placeholder-text">
-        <strong>Admin Only:</strong> This page should only be accessible to admin users.
+        <strong>Admin Only:</strong> Logged in as {auth?.email} (admin).
       </p>
 
       <p className="placeholder-text">

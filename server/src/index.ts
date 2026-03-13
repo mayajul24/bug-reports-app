@@ -105,6 +105,17 @@ app.post('/api/reports', (req: Request, res: Response) => {
   res.status(201).json(newReport);
 });
 
+// GET /api/check-status - Check user status by email
+app.get('/api/check-status', (req: Request, res: Response) => {
+  const { email } = req.query;
+  const entry = userStatuses.find(u => u.email === email);
+  if (entry) {
+    res.json({ status: entry.status, reason: entry.reason });
+  } else {
+    res.json({ status: 'allowed' });
+  }
+});
+
 // Health check
 app.get('/api/health', (_req: Request, res: Response) => {
   res.json({ status: 'ok' });

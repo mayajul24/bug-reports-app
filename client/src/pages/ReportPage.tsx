@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -13,16 +14,28 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export function ReportPage() {
+  const [submitError, setSubmitError] = useState('');
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
 
   const onSubmit = async (data: FormData) => {
-    await apiClient.createReport(data);
+    setSubmitError('');
+    setSubmitSuccess(false);
+    try {
+      await apiClient.createReport(data);
+      setSubmitSuccess(true);
+      reset();
+    } catch {
+      setSubmitError('Failed to submit report. Please try again.');
+    }
   };
 
   return (
@@ -30,6 +43,13 @@ export function ReportPage() {
       <h1>Report a Bug</h1>
 
       <p className="form-required-note"><span className="required-star">*</span> Required fields</p>
+
+      {submitSuccess && (
+        <div className="alert alert-success">Report submitted successfully!</div>
+      )}
+      {submitError && (
+        <div className="alert alert-error">{submitError}</div>
+      )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="form">
         <div className="form-group">

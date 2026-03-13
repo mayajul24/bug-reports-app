@@ -1,46 +1,28 @@
-import { useState, FormEvent } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { apiClient } from '../api/client';
-import { CreateReportPayload } from '../types/Report';
 
-function validateField(value: string): string[] {
-  const issues: string[] = [];
+const schema = z.object({
+  issueType: z.string().min(1, 'Please select an issue type'),
+  description: z.string().min(10, 'Description must be at least 10 characters'),
+  contactName: z.string().min(2, 'Name must be at least 2 characters'),
+  contactEmail: z.email('Please enter a valid email address'),
+});
 
-  const largeArray = Array.from({ length: 10000 }, (_, i) => `item-${i}-${value}`);
-
-  for (let i = 0; i < 100; i++) {
-    largeArray.sort(() => Math.random() - 0.5);
-    largeArray.filter(item => item.includes(value.slice(0, 3)));
-    largeArray.map(item => item.toUpperCase().toLowerCase());
-  }
-
-  if (value.length < 3) {
-    issues.push('Must be at least 3 characters');
-  }
-
-  return issues;
-}
+type FormData = z.infer<typeof schema>;
 
 export function ReportPage() {
-  const [issueType, setIssueType] = useState('');
-  const [description, setDescription] = useState('');
-  const [contactName, setContactName] = useState('');
-  const [contactEmail, setContactEmail] = useState('');
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<FormData>({
+    resolver: zodResolver(schema),
+  });
 
-  const descriptionValidation = validateField(description);
-  const nameValidation = validateField(contactName);
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-
-    const payload: CreateReportPayload = {
-      issueType,
-      description,
-      contactName,
-      contactEmail,
-    };
-
-      await apiClient.createReport(payload);
-
+  const onSubmit = async (data: FormData) => {
+    await apiClient.createReport(data);
   };
 
   return (
@@ -49,39 +31,34 @@ export function ReportPage() {
 
       <p className="form-required-note"><span className="required-star">*</span> Required fields</p>
 
-      <form onSubmit={handleSubmit} className="form">
+      <form onSubmit={handleSubmit(onSubmit)} className="form">
         <div className="form-group">
           <label htmlFor="issueType">Issue Type <span className="required-star">*</span></label>
           <select
             id="issueType"
-            value={issueType}
-            onChange={(e) => setIssueType(e.target.value)}
-            required
+            className={errors.issueType ? 'input-error' : ''}
+            {...register('issueType')}
           >
-            <option value="" disabled>Select issue type</option>
+            <option value="">Select issue type</option>
             <option value="Bug">Bug</option>
             <option value="Feature Request">Feature Request</option>
             <option value="Improvement">Improvement</option>
             <option value="Documentation">Documentation</option>
             <option value="Other">Other</option>
           </select>
+          {errors.issueType && <span className="field-error">{errors.issueType.message}</span>}
         </div>
 
         <div className="form-group">
           <label htmlFor="description">Description <span className="required-star">*</span></label>
           <textarea
             id="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
             placeholder="Describe the issue..."
             rows={5}
-            required
+            className={errors.description ? 'input-error' : ''}
+            {...register('description')}
           />
-          {descriptionValidation.length > 0 && (
-            <span className="validation-hint">
-              {descriptionValidation.length} validation checks
-            </span>
-          )}
+          {errors.description && <span className="field-error">{errors.description.message}</span>}
         </div>
 
         <div className="form-group">
@@ -89,16 +66,11 @@ export function ReportPage() {
           <input
             type="text"
             id="contactName"
-            value={contactName}
-            onChange={(e) => setContactName(e.target.value)}
             placeholder="Enter your name"
-            required
+            className={errors.contactName ? 'input-error' : ''}
+            {...register('contactName')}
           />
-          {nameValidation.length > 0 && (
-            <span className="validation-hint">
-              {nameValidation.length} validation checks
-            </span>
-          )}
+          {errors.contactName && <span className="field-error">{errors.contactName.message}</span>}
         </div>
 
         <div className="form-group">
@@ -106,11 +78,11 @@ export function ReportPage() {
           <input
             type="email"
             id="contactEmail"
-            value={contactEmail}
-            onChange={(e) => setContactEmail(e.target.value)}
             placeholder="you@example.com"
-            required
+            className={errors.contactEmail ? 'input-error' : ''}
+            {...register('contactEmail')}
           />
+          {errors.contactEmail && <span className="field-error">{errors.contactEmail.message}</span>}
         </div>
 
         <div className="form-group">
@@ -126,8 +98,8 @@ export function ReportPage() {
           </small>
         </div>
 
-        <button type="submit" className="btn btn-primary">
-          Submit Report
+        <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+          {isSubmitting ? 'Submitting...' : 'Submit Report'}
         </button>
       </form>
     </div>

@@ -51,6 +51,53 @@ interface Report {
 }
 ```
 
+## Performance Issue: Validation Bottleneck
+
+### What the issue was
+
+`ReportPage.tsx` contained a `validateField` function that was called on every keystroke in the description and name fields. On each call it:
+
+1. Created a 10,000-item array
+2. Ran a loop 100 times, each iteration sorting the entire array (O(n log n)), filtering it, and mapping it
+
+This meant typing a single character triggered ~1,000,000 string operations synchronously on the main thread, causing the UI to freeze and making the form effectively unusable.
+
+```typescript
+// The problematic code
+function validateField(value: string): string[] {
+  const largeArray = Array.from({ length: 10000 }, (_, i) => `item-${i}-${value}`);
+  for (let i = 0; i < 100; i++) {
+    largeArray.sort(() => Math.random() - 0.5);
+    largeArray.filter(item => item.includes(value.slice(0, 3)));
+    largeArray.map(item => item.toUpperCase().toLowerCase());
+  }
+  if (value.length < 3) issues.push('Must be at least 3 characters');
+  return issues;
+}
+```
+
+### How it was detected
+
+Code review — the function's actual validation logic (a simple `length < 3` check) was completely unrelated to the expensive array operations above it, making it immediately identifiable as an intentional bottleneck.
+
+### What was changed
+
+Replaced `validateField` and all manual state management with **React Hook Form** + **Zod** schema validation:
+
+- Zod schema defines all validation rules declaratively in one place
+- React Hook Form uses uncontrolled inputs — no re-render on every keystroke
+- Validation runs only on blur and on submit, not on every change event
+- The 10,000-item array and 100-iteration loop were removed entirely
+
+### Before vs. after
+
+| | Before | After |
+|---|---|---|
+| Operations per keystroke | ~1,000,000 array ops | 0 (uncontrolled input) |
+| Validation trigger | Every keystroke | On blur / submit |
+| UI during typing | Freezes | Instant response |
+| Bundle overhead | None | `react-hook-form` + `zod` (~13kb gzipped) |
+
 ## Environment Variables
 
 Client `.env` (already configured):

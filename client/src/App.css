@@ -232,7 +232,6 @@ body {
 .badge-approved { background: #dcfce7; color: #166534; }
 .badge-resolved { background: #f1f5f9; color: #475569; }
 
-/* Report list */
 .report-list {
   display: flex;
   flex-direction: column;

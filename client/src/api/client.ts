@@ -1,6 +1,6 @@
 import { Report, CreateReportPayload, CheckStatusResponse } from '../types/Report';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+import { API_BASE_URL } from '../config';
 
 class ApiClient {
   private baseUrl: string;

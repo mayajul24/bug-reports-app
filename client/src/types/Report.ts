@@ -12,6 +12,8 @@ export interface Report {
 
 export type UserStatus = 'allowed' | 'admin' | 'blacklisted';
 
+export type FetchStatus = 'idle' | 'loading' | 'success' | 'error';
+
 export interface CheckStatusResponse {
   status: UserStatus;
   reason?: string;

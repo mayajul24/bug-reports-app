@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, NavLink, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, NavLink, Navigate, useNavigate } from 'react-router-dom';
 import { LoginPage } from './pages/LoginPage';
 import { ReportPage } from './pages/ReportPage';
 import { ReportsPage } from './pages/ReportsPage';
@@ -13,31 +13,47 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-function AppNav() {
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { auth } = useAuth();
+  if (!auth) return <Navigate to="/login" replace />;
+  return <>{children}</>;
+}
+
+function AppNav() {
+  const { auth, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <nav className="nav">
       <div className="nav-brand">🐛 Bug Reporter</div>
       <ul className="nav-links">
-        <li>
-          <NavLink to="/login" className={({ isActive }) => isActive ? 'active' : ''}>
-            Login
-          </NavLink>
-        </li>
-        <li>
-          <NavLink to="/report" className={({ isActive }) => isActive ? 'active' : ''}>
-            Report Bug
-          </NavLink>
-        </li>
-        {auth?.status === 'admin' && (
-          <li>
-            <NavLink to="/reports" className={({ isActive }) => isActive ? 'active' : ''}>
-              Reports List
-            </NavLink>
-          </li>
+        {auth && (
+          <>
+            <li>
+              <NavLink to="/report" className={({ isActive }) => isActive ? 'active' : ''}>
+                Report Bug
+              </NavLink>
+            </li>
+            {auth.status === 'admin' && (
+              <li>
+                <NavLink to="/reports" className={({ isActive }) => isActive ? 'active' : ''}>
+                  Reports List
+                </NavLink>
+              </li>
+            )}
+          </>
         )}
       </ul>
+      {auth && (
+        <button className="btn-logout" onClick={handleLogout}>
+          Logout
+        </button>
+      )}
     </nav>
   );
 }
@@ -52,7 +68,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Navigate to="/login" replace />} />
               <Route path="/login" element={<LoginPage />} />
-              <Route path="/report" element={<ReportPage />} />
+              <Route path="/report" element={<ProtectedRoute><ReportPage /></ProtectedRoute>} />
               <Route
                 path="/reports"
                 element={

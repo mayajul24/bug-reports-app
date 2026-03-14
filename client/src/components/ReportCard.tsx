@@ -1,10 +1,6 @@
 import { Report } from '../types/Report';
 import { API_BASE_URL } from '../config';
-import { STATUS_CLASS_MAP } from '../constants';
-
-function StatusBadge({ status }: { status: Report['status'] }) {
-  return <span className={STATUS_CLASS_MAP[status]}>{status}</span>;
-}
+import { StatusBadge } from './StatusBadge';
 
 interface ReportCardProps {
   report: Report;

@@ -3,9 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { apiClient } from '../api/client';
-
-const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'application/pdf'];
-const MAX_SIZE = 5 * 1024 * 1024;
+import { ALLOWED_FILE_TYPES, MAX_FILE_SIZE } from '../constants';
 
 const schema = z.object({
   issueType: z.string().min(1, 'Please select an issue type'),
@@ -16,11 +14,11 @@ const schema = z.object({
     .custom<FileList>()
     .optional()
     .refine(
-      (files) => !files || files.length === 0 || files[0].size <= MAX_SIZE,
+      (files) => !files || files.length === 0 || files[0].size <= MAX_FILE_SIZE,
       'File must be 5MB or less'
     )
     .refine(
-      (files) => !files || files.length === 0 || ALLOWED_TYPES.includes(files[0].type),
+      (files) => !files || files.length === 0 || ALLOWED_FILE_TYPES.includes(files[0].type),
       'Only PNG, JPG, and PDF files are allowed'
     ),
 });
@@ -44,11 +42,8 @@ export function ReportPage() {
     setSubmitError('');
     setSubmitSuccess(false);
     try {
-      const file = data.attachment?.[0];
-      await apiClient.createReport(
-        { issueType: data.issueType, description: data.description, contactName: data.contactName, contactEmail: data.contactEmail },
-        file
-      );
+      const { attachment, ...reportPayload } = data;
+      await apiClient.createReport(reportPayload, attachment?.[0]);
       setSubmitSuccess(true);
       reset();
     } catch {

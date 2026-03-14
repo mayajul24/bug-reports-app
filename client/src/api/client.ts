@@ -1,5 +1,4 @@
 import { Report, CreateReportPayload, CheckStatusResponse } from '../types/Report';
-
 import { API_BASE_URL } from '../config';
 
 class ApiClient {
@@ -33,6 +32,8 @@ class ApiClient {
     return this.request<Report[]>('/api/reports');
   }
 
+  // Uses fetch directly instead of request<T> so the browser can set
+  // Content-Type: multipart/form-data with the correct boundary automatically.
   private async sendReportWithAttachment<T>(endpoint: string, fields: Record<string, string>, file: File, fileField: string): Promise<T> {
     const formData = new FormData();
     Object.entries(fields).forEach(([key, value]) => formData.append(key, value));

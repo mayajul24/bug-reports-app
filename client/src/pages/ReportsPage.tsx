@@ -23,27 +23,24 @@ export function ReportsPage() {
     }
   };
 
-  const updateReport = (updated: Report) => {
-    setReports(prev => prev.map(report => report.id === updated.id ? updated : report));
-  };
-
-  const handleApprove = async (id: string) => {
+  const handleAction = async (action: () => Promise<Report>, errorMsg: string) => {
     try {
-      const updated = await apiClient.approveReport(id, auth?.email ?? '');
-      updateReport(updated);
+      const updated = await action();
+      setReports(prev => prev.map(report => report.id === updated.id ? updated : report));
     } catch {
-      setError('Failed to approve report. Please try again.');
+      setError(errorMsg);
     }
   };
 
-  const handleResolve = async (id: string) => {
-    try {
-      const updated = await apiClient.resolveReport(id, auth?.email ?? '');
-      updateReport(updated);
-    } catch {
-      setError('Failed to resolve report. Please try again.');
-    }
-  };
+  const handleApprove = (id: string) => handleAction(
+    () => apiClient.approveReport(id, auth?.email ?? ''),
+    'Failed to approve report. Please try again.'
+  );
+
+  const handleResolve = (id: string) => handleAction(
+    () => apiClient.resolveReport(id, auth?.email ?? ''),
+    'Failed to resolve report. Please try again.'
+  );
 
   return (
     <div className="page">

@@ -21,7 +21,6 @@ export function LoginPage() {
 
       if (result.status === 'blacklisted') {
         setError(result.reason ?? 'Your account has been blacklisted.');
-        setLoading(false);
         return;
       }
 

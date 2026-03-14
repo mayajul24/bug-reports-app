@@ -23,6 +23,28 @@ export function ReportsPage() {
     }
   };
 
+  const updateReport = (updated: Report) => {
+    setReports(prev => prev.map(r => r.id === updated.id ? updated : r));
+  };
+
+  const handleApprove = async (id: string) => {
+    try {
+      const updated = await apiClient.approveReport(id);
+      updateReport(updated);
+    } catch {
+      setError('Failed to approve report. Please try again.');
+    }
+  };
+
+  const handleResolve = async (id: string) => {
+    try {
+      const updated = await apiClient.resolveReport(id);
+      updateReport(updated);
+    } catch {
+      setError('Failed to resolve report. Please try again.');
+    }
+  };
+
   return (
     <div className="page">
       <h1>Reports List</h1>
@@ -32,7 +54,7 @@ export function ReportsPage() {
         {status === 'loading' ? 'Loading...' : 'Load Reports'}
       </button>
 
-      {status === 'error' && (
+      {error && (
         <div className="alert alert-error" style={{ marginTop: '1rem' }}>{error}</div>
       )}
 
@@ -43,7 +65,7 @@ export function ReportsPage() {
       {status === 'success' && reports.length > 0 && (
         <div className="report-list">
           {reports.map(report => (
-            <ReportCard key={report.id} report={report} />
+            <ReportCard key={report.id} report={report} onApprove={handleApprove} onResolve={handleResolve} />
           ))}
         </div>
       )}

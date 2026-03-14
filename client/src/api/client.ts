@@ -52,6 +52,14 @@ class ApiClient {
     });
   }
 
+  async approveReport(id: string): Promise<Report> {
+    return this.request<Report>(`/api/reports/${id}/approve`, { method: 'POST' });
+  }
+
+  async resolveReport(id: string): Promise<Report> {
+    return this.request<Report>(`/api/reports/${id}/resolve`, { method: 'POST' });
+  }
+
   async checkStatus(email: string): Promise<CheckStatusResponse> {
     return this.request<CheckStatusResponse>(`/api/check-status?email=${encodeURIComponent(email)}`);
   }

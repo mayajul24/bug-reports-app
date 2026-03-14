@@ -105,6 +105,23 @@ app.post('/api/reports', (req: Request, res: Response) => {
   res.status(201).json(newReport);
 });
 
+// POST /api/reports/:id/approve
+app.post('/api/reports/:id/approve', (req: Request, res: Response) => {
+  const report = reports.find(r => r.id === req.params.id);
+  if (!report) return res.status(404).json({ error: 'Report not found' });
+  report.status = 'APPROVED';
+  report.approvedAt = Date.now();
+  res.json(report);
+});
+
+// POST /api/reports/:id/resolve
+app.post('/api/reports/:id/resolve', (req: Request, res: Response) => {
+  const report = reports.find(r => r.id === req.params.id);
+  if (!report) return res.status(404).json({ error: 'Report not found' });
+  report.status = 'RESOLVED';
+  res.json(report);
+});
+
 // GET /api/check-status - Check user status by email
 app.get('/api/check-status', (req: Request, res: Response) => {
   const { email } = req.query;

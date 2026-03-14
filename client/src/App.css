@@ -278,6 +278,21 @@ body {
   margin-top: 1rem;
 }
 
+/* Loading spinner */
+.spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 3px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin: 1.5rem auto;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 /* Placeholder styles for TODO sections */
 .placeholder-text {
   color: var(--text-muted);

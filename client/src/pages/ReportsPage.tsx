@@ -24,7 +24,7 @@ export function ReportsPage() {
   };
 
   const updateReport = (updated: Report) => {
-    setReports(prev => prev.map(r => r.id === updated.id ? updated : r));
+    setReports(prev => prev.map(report => report.id === updated.id ? updated : report));
   };
 
   const handleApprove = async (id: string) => {
@@ -53,6 +53,8 @@ export function ReportsPage() {
       <button className="btn btn-secondary" onClick={fetchReports} disabled={status === 'loading'}>
         {status === 'loading' ? 'Loading...' : 'Load Reports'}
       </button>
+
+      {status === 'loading' && <div className="spinner" />}
 
       {error && (
         <div className="alert alert-error" style={{ marginTop: '1rem' }}>{error}</div>

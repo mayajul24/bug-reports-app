@@ -29,7 +29,7 @@ export function ReportsPage() {
 
   const handleApprove = async (id: string) => {
     try {
-      const updated = await apiClient.approveReport(id);
+      const updated = await apiClient.approveReport(id, auth?.email ?? '');
       updateReport(updated);
     } catch {
       setError('Failed to approve report. Please try again.');
@@ -38,7 +38,7 @@ export function ReportsPage() {
 
   const handleResolve = async (id: string) => {
     try {
-      const updated = await apiClient.resolveReport(id);
+      const updated = await apiClient.resolveReport(id, auth?.email ?? '');
       updateReport(updated);
     } catch {
       setError('Failed to resolve report. Please try again.');

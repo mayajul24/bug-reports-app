@@ -52,12 +52,18 @@ class ApiClient {
     });
   }
 
-  async approveReport(id: string): Promise<Report> {
-    return this.request<Report>(`/api/reports/${id}/approve`, { method: 'POST' });
+  async approveReport(id: string, email: string): Promise<Report> {
+    return this.request<Report>(`/api/reports/${id}/approve`, {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
   }
 
-  async resolveReport(id: string): Promise<Report> {
-    return this.request<Report>(`/api/reports/${id}/resolve`, { method: 'POST' });
+  async resolveReport(id: string, email: string): Promise<Report> {
+    return this.request<Report>(`/api/reports/${id}/resolve`, {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
   }
 
   async checkStatus(email: string): Promise<CheckStatusResponse> {

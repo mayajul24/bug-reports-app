@@ -79,6 +79,30 @@ const userStatuses: UserStatusEntry[] = [
   { email: 'spam@test.com', status: 'blacklisted', reason: 'Multiple spam reports received' }
 ];
 
+function isAdmin(email: string): boolean {
+  if (!email) return false;
+  return userStatuses.some(user => user.email === email && user.status === 'admin');
+}
+
+function updateReportStatus(id: string, status: 'APPROVED' | 'RESOLVED') {
+  const report = reports.find(rep => rep.id === id);
+  if (!report) return null;
+
+  report.status = status;
+  if (status === 'APPROVED') report.approvedAt = Date.now();
+
+  return report;
+}
+
+function handleStatusUpdate(req: Request, res: Response, status: 'APPROVED' | 'RESOLVED') {
+  if (!isAdmin(req.body.email)) return res.status(403).json({ error: 'Forbidden' });
+
+  const updated = updateReportStatus(req.params.id, status);
+  if (!updated) return res.status(404).json({ error: 'Report not found' });
+
+  res.json(updated);
+}
+
 // API Routes
 
 // GET /api/reports - Get all reports
@@ -106,26 +130,14 @@ app.post('/api/reports', (req: Request, res: Response) => {
 });
 
 // POST /api/reports/:id/approve
-app.post('/api/reports/:id/approve', (req: Request, res: Response) => {
-  const report = reports.find(r => r.id === req.params.id);
-  if (!report) return res.status(404).json({ error: 'Report not found' });
-  report.status = 'APPROVED';
-  report.approvedAt = Date.now();
-  res.json(report);
-});
-
+app.post('/api/reports/:id/approve', (req, res) => handleStatusUpdate(req, res, 'APPROVED'));
 // POST /api/reports/:id/resolve
-app.post('/api/reports/:id/resolve', (req: Request, res: Response) => {
-  const report = reports.find(r => r.id === req.params.id);
-  if (!report) return res.status(404).json({ error: 'Report not found' });
-  report.status = 'RESOLVED';
-  res.json(report);
-});
+app.post('/api/reports/:id/resolve', (req, res) => handleStatusUpdate(req, res, 'RESOLVED'));
 
 // GET /api/check-status - Check user status by email
 app.get('/api/check-status', (req: Request, res: Response) => {
   const { email } = req.query;
-  const entry = userStatuses.find(u => u.email === email);
+  const entry = userStatuses.find(user => user.email === email);
   if (entry) {
     res.json({ status: entry.status, reason: entry.reason });
   } else {

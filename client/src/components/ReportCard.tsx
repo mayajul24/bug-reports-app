@@ -9,6 +9,11 @@ interface ReportCardProps {
 }
 
 export function ReportCard({ report, onApprove, onResolve }: ReportCardProps) {
+  const adminAction =
+    report.status === 'NEW' && onApprove ? { label: 'Approve', handler: onApprove } :
+    report.status === 'APPROVED' && onResolve ? { label: 'Resolve', handler: onResolve } :
+    null;
+
   return (
     <div className="report-card">
       <div className="report-card-header">
@@ -35,18 +40,11 @@ export function ReportCard({ report, onApprove, onResolve }: ReportCardProps) {
         )}
       </div>
 
-      {(onApprove || onResolve) && (
+      {adminAction && (
         <div className="report-actions">
-          {onApprove && report.status === 'NEW' && (
-            <button className="btn btn-primary" onClick={() => onApprove(report.id)}>
-              Approve
-            </button>
-          )}
-          {onResolve && report.status !== 'RESOLVED' && (
-            <button className="btn btn-secondary" onClick={() => onResolve(report.id)}>
-              Resolve
-            </button>
-          )}
+          <button className="btn btn-primary" onClick={() => adminAction.handler(report.id)}>
+            {adminAction.label}
+          </button>
         </div>
       )}
     </div>

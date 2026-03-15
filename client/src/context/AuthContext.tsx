@@ -14,8 +14,22 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+const AUTH_KEY = 'auth';
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [auth, setAuth] = useState<AuthState | null>(null);
+  const [auth, setAuthState] = useState<AuthState | null>(() => {
+    const stored = localStorage.getItem(AUTH_KEY);
+    return stored ? JSON.parse(stored) : null;
+  });
+
+  const setAuth = (value: AuthState | null) => {
+    setAuthState(value);
+    if (value) {
+      localStorage.setItem(AUTH_KEY, JSON.stringify(value));
+    } else {
+      localStorage.removeItem(AUTH_KEY);
+    }
+  };
 
   const logout = () => setAuth(null);
 

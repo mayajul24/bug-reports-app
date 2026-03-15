@@ -7,10 +7,17 @@ interface ReportCardProps {
   report: Report;
   onApprove?: (id: string) => Promise<void>;
   onResolve?: (id: string) => Promise<void>;
+  isLoading?: boolean;
 }
 
-export function ReportCard({ report, onApprove, onResolve }: ReportCardProps) {
-  const adminAction =
+type AdminAction = {
+    label: string;
+    handler: (id: string) => Promise<void>;
+};
+
+export function ReportCard({ report, onApprove, onResolve, isLoading }: ReportCardProps) {
+  // Enforces the status lifecycle: NEW → Approve → APPROVED → Resolve → RESOLVED
+  const adminAction:AdminAction | null =
     report.status === 'NEW' && onApprove ? { label: 'Approve', handler: onApprove } :
     report.status === 'APPROVED' && onResolve ? { label: 'Resolve', handler: onResolve } :
     null;
@@ -21,15 +28,21 @@ export function ReportCard({ report, onApprove, onResolve }: ReportCardProps) {
         <span className="report-issue-type">{report.issueType}</span>
         <StatusBadge status={report.status} />
       </div>
-
       <p className="report-description">{report.description}</p>
-
       <div className="report-meta">
-        <span><strong>Name:</strong> {report.contactName}</span>
-        <span><strong>Email:</strong> {report.contactEmail}</span>
-        <span><strong>Created:</strong> {new Date(report.createdAt).toLocaleDateString()}</span>
+        <span>
+            <strong>Name:</strong> {report.contactName}
+        </span>
+        <span>
+            <strong>Email:</strong> {report.contactEmail}
+        </span>
+        <span>
+            <strong>Created:</strong> {new Date(report.createdAt).toLocaleDateString()}
+        </span>
         {report.approvedAt && (
-          <span><strong>Approved:</strong> {new Date(report.approvedAt).toLocaleDateString()}</span>
+          <span>
+              <strong>Approved:</strong> {new Date(report.approvedAt).toLocaleDateString()}
+          </span>
         )}
         {report.attachmentUrl && report.attachmentUrl !== PLACEHOLDER_ATTACHMENT && (
           <span>
@@ -40,11 +53,10 @@ export function ReportCard({ report, onApprove, onResolve }: ReportCardProps) {
           </span>
         )}
       </div>
-
       {adminAction && (
         <div className="report-actions">
-          <button className="btn btn-primary" onClick={() => adminAction.handler(report.id)}>
-            {adminAction.label}
+          <button className="btn btn-primary" onClick={() => adminAction.handler(report.id)} disabled={isLoading}>
+            {isLoading ? '...' : adminAction.label}
           </button>
         </div>
       )}

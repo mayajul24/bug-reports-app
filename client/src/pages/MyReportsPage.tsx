@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { apiClient } from '../api/client';
-import { Report, FetchStatus } from '../types/Report';
+import { Report } from '../types/Report';
+import { FetchStatus } from '../types/common';
 import { ReportCard } from '../components/ReportCard';
 import { usePagination } from '../hooks/usePagination';
 
@@ -14,24 +15,24 @@ export function MyReportsPage() {
 
   const { currentPage, totalPages, paginatedItems, changePage } = usePagination(reports);
 
+  const fetchMyReports = async () => {
+    setStatus('loading');
+    setError('');
+    try {
+      const all = await apiClient.getReports();
+      setReports(all.filter(r => r.contactEmail === auth?.email));
+      setStatus('success');
+    } catch {
+      setError('Failed to load your reports. Please try again.');
+      setStatus('error');
+    }
+  };
+
   useEffect(() => {
     reportsListRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [currentPage]);
 
   useEffect(() => {
-    const fetchMyReports = async () => {
-      setStatus('loading');
-      setError('');
-      try {
-        const all = await apiClient.getReports();
-        setReports(all.filter(r => r.contactEmail === auth?.email));
-        setStatus('success');
-      } catch {
-        setError('Failed to load your reports. Please try again.');
-        setStatus('error');
-      }
-    };
-
     fetchMyReports();
   }, [auth?.email]);
 

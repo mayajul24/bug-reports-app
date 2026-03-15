@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { apiClient } from '../api/client';
-import { Report, FetchStatus } from '../types/Report';
+import { Report } from '../types/Report';
+import { FetchStatus } from '../types/common';
 import { ReportCard } from '../components/ReportCard';
 import { usePagination } from '../hooks/usePagination';
 
@@ -10,12 +11,13 @@ export function ReportsPage() {
   const [reports, setReports] = useState<Report[]>([]);
   const [status, setStatus] = useState<FetchStatus>('loading');
   const [error, setError] = useState('');
-  const reportsListRef = useRef<HTMLDivElement>(null);
-
+  const [loadingId, setLoadingId] = useState<string | null>(null);
   const { currentPage, totalPages, paginatedItems: paginatedReports, changePage, reset } = usePagination(reports);
 
+  const reportsListRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    void fetchReports();
+    fetchReports();
   }, []);
 
   useEffect(() => {
@@ -36,21 +38,27 @@ export function ReportsPage() {
     }
   };
 
-  const handleAction = async (action: () => Promise<Report>, errorMsg: string) => {
+  // Tracks which report is being actioned to disable its button and prevent double-clicks
+  const handleAction = async (id: string, action: () => Promise<Report>, errorMsg: string) => {
+    setLoadingId(id);
     try {
       const updated = await action();
       setReports(prev => prev.map(report => report.id === updated.id ? updated : report));
     } catch {
       setError(errorMsg);
+    } finally {
+      setLoadingId(null);
     }
   };
 
   const handleApprove = (id: string) => handleAction(
+    id,
     () => apiClient.approveReport(id, auth?.email ?? ''),
     'Failed to approve report. Please try again.'
   );
 
   const handleResolve = (id: string) => handleAction(
+    id,
     () => apiClient.resolveReport(id, auth?.email ?? ''),
     'Failed to resolve report. Please try again.'
   );
@@ -66,25 +74,20 @@ export function ReportsPage() {
           {status === 'loading' ? '↻' : '↻ Refresh'}
         </button>
       </div>
-
       {status === 'loading' && <div className="spinner" />}
-
       {status === 'error' && (
         <div className="alert alert-error">{error}</div>
       )}
-
       {status === 'success' && reports.length === 0 && (
         <p className="placeholder-text">No reports submitted yet.</p>
       )}
-
       {status === 'success' && reports.length > 0 && (
         <>
           <div className="report-list" ref={reportsListRef}>
             {paginatedReports.map(report => (
-              <ReportCard key={report.id} report={report} onApprove={handleApprove} onResolve={handleResolve} />
+              <ReportCard key={report.id} report={report} onApprove={handleApprove} onResolve={handleResolve} isLoading={loadingId === report.id} />
             ))}
           </div>
-
           {totalPages > 1 && (
             <div className="pagination">
               <button

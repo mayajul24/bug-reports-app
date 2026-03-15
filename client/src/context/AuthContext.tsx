@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
-import { UserStatus } from '../types/Report';
+import { UserStatus } from '../types/Auth';
 
 interface AuthState {
   email: string;
@@ -17,9 +17,14 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 const AUTH_KEY = 'auth';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  // Wrapped in try/catch to handle corrupted or invalid JSON in localStorage
   const [auth, setAuthState] = useState<AuthState | null>(() => {
-    const stored = localStorage.getItem(AUTH_KEY);
-    return stored ? JSON.parse(stored) : null;
+    try {
+      const stored = localStorage.getItem(AUTH_KEY);
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
   });
 
   const setAuth = (value: AuthState | null) => {

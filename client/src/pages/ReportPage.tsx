@@ -59,13 +59,10 @@ export function ReportPage() {
   return (
     <div className="page">
       <h1>Report a Bug</h1>
-
       <p className="form-required-note"><span className="required-star">*</span> Required fields</p>
-
       {submitError && (
         <div className="alert alert-error">{submitError}</div>
       )}
-
       <form onSubmit={handleSubmit(onSubmit)} className="form">
         <div className="form-group">
           <label htmlFor="issueType">Issue Type <span className="required-star">*</span></label>
@@ -83,7 +80,6 @@ export function ReportPage() {
           </select>
           {errors.issueType && <span className="field-error">{errors.issueType.message}</span>}
         </div>
-
         <div className="form-group">
           <label htmlFor="description">Description <span className="required-star">*</span></label>
           <textarea
@@ -95,7 +91,6 @@ export function ReportPage() {
           />
           {errors.description && <span className="field-error">{errors.description.message}</span>}
         </div>
-
         <div className="form-group">
           <label htmlFor="contactName">Your Name <span className="required-star">*</span></label>
           <input
@@ -107,7 +102,6 @@ export function ReportPage() {
           />
           {errors.contactName && <span className="field-error">{errors.contactName.message}</span>}
         </div>
-
         <div className="form-group">
           <label htmlFor="attachment">Attachment (optional)</label>
           <input
@@ -120,7 +114,6 @@ export function ReportPage() {
           <small className="form-hint">Accepted formats: PNG, JPG, PDF — max 5MB</small>
           {errors.attachment && <span className="field-error">{errors.attachment.message as string}</span>}
         </div>
-
         <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
           {isSubmitting ? 'Submitting...' : 'Submit Report'}
         </button>

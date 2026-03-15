@@ -10,15 +10,6 @@ export interface Report {
   attachmentUrl: string;
 }
 
-export type UserStatus = 'allowed' | 'admin' | 'blacklisted';
-
-export type FetchStatus = 'idle' | 'loading' | 'success' | 'error';
-
-export interface CheckStatusResponse {
-  status: UserStatus;
-  reason?: string;
-}
-
 export interface CreateReportPayload {
   [key: string]: string;
   issueType: string;

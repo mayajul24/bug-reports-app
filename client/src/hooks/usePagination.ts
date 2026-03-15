@@ -13,8 +13,10 @@ export function usePagination<T>(items: T[]) {
     return { totalPages, paginatedItems };
   }, [items, currentPage]);
 
-  const changePage = (page: number) => setCurrentPage(page);
-
+  const changePage = (page: number) => {
+    if (page < 1 || page > totalPages) return;
+    setCurrentPage(page);
+  };
   const reset = () => setCurrentPage(1);
 
   return { currentPage, totalPages, paginatedItems, changePage, reset };

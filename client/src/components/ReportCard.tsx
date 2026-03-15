@@ -4,8 +4,8 @@ import { StatusBadge } from './StatusBadge';
 
 interface ReportCardProps {
   report: Report;
-  onApprove: (id: string) => Promise<void>;
-  onResolve: (id: string) => Promise<void>;
+  onApprove?: (id: string) => Promise<void>;
+  onResolve?: (id: string) => Promise<void>;
 }
 
 export function ReportCard({ report, onApprove, onResolve }: ReportCardProps) {
@@ -35,18 +35,20 @@ export function ReportCard({ report, onApprove, onResolve }: ReportCardProps) {
         )}
       </div>
 
-      <div className="report-actions">
-        {report.status === 'NEW' && (
-          <button className="btn btn-primary" onClick={() => onApprove(report.id)}>
-            Approve
-          </button>
-        )}
-        {report.status !== 'RESOLVED' && (
-          <button className="btn btn-secondary" onClick={() => onResolve(report.id)}>
-            Resolve
-          </button>
-        )}
-      </div>
+      {(onApprove || onResolve) && (
+        <div className="report-actions">
+          {onApprove && report.status === 'NEW' && (
+            <button className="btn btn-primary" onClick={() => onApprove(report.id)}>
+              Approve
+            </button>
+          )}
+          {onResolve && report.status !== 'RESOLVED' && (
+            <button className="btn btn-secondary" onClick={() => onResolve(report.id)}>
+              Resolve
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

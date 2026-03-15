@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, NavLink, Navigate, useNavigate } from 're
 import { LoginPage } from './pages/LoginPage';
 import { ReportPage } from './pages/ReportPage';
 import { ReportsPage } from './pages/ReportsPage';
+import { MyReportsPage } from './pages/MyReportsPage';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import './App.css';
 
@@ -39,6 +40,13 @@ function AppNav() {
                 Report Bug
               </NavLink>
             </li>
+            {auth.status !== 'admin' && (
+              <li>
+                <NavLink to="/my-reports" className={({ isActive }) => isActive ? 'active' : ''}>
+                  My Reports
+                </NavLink>
+              </li>
+            )}
             {auth.status === 'admin' && (
               <li>
                 <NavLink to="/reports" className={({ isActive }) => isActive ? 'active' : ''}>
@@ -69,6 +77,7 @@ function App() {
               <Route path="/" element={<Navigate to="/login" replace />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/report" element={<ProtectedRoute><ReportPage /></ProtectedRoute>} />
+              <Route path="/my-reports" element={<ProtectedRoute><MyReportsPage /></ProtectedRoute>} />
               <Route
                 path="/reports"
                 element={

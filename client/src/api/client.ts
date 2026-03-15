@@ -32,20 +32,14 @@ class ApiClient {
     return this.request<Report[]>('/api/reports');
   }
 
-  // Uses fetch directly instead of request<T> so the browser can set
-  // Content-Type: multipart/form-data with the correct boundary automatically.
-  private async sendReportWithAttachment<T>(endpoint: string, fields: Record<string, string>, file: File, fileField: string): Promise<T> {
-    const formData = new FormData();
-    Object.entries(fields).forEach(([key, value]) => formData.append(key, value));
-    formData.append(fileField, file);
-    const response = await fetch(`${this.baseUrl}${endpoint}`, { method: 'POST', body: formData });
-    if (!response.ok) throw new Error(`API Error: ${response.status} ${response.statusText}`);
-    return response.json();
-  }
-
   async createReport(payload: CreateReportPayload, file?: File): Promise<Report> {
     if (file) {
-      return this.sendReportWithAttachment<Report>('/api/reports', payload, file, 'attachment');
+      const formData = new FormData();
+      Object.entries(payload).forEach(([key, value]) => formData.append(key, value));
+      formData.append('attachment', file);
+      const response = await fetch(`${this.baseUrl}/api/reports`, { method: 'POST', body: formData });
+      if (!response.ok) throw new Error(`API Error: ${response.status} ${response.statusText}`);
+      return response.json();
     }
     return this.request<Report>('/api/reports', {
       method: 'POST',

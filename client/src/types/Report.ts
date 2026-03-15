@@ -25,4 +25,5 @@ export interface CreateReportPayload {
   description: string;
   contactName: string;
   contactEmail: string;
+  attachmentUrl: string;
 }

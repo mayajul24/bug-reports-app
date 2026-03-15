@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
+import multer from 'multer';
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -17,6 +18,8 @@ app.use(cors({
 app.use(express.json());
 
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+
+const upload = multer({ dest: path.join(__dirname, '..', 'uploads') });
 
 // Types
 interface Report {
@@ -112,8 +115,9 @@ app.get('/api/reports', (_req: Request, res: Response) => {
 });
 
 // POST /api/reports - Create a new report
-app.post('/api/reports', (req: Request, res: Response) => {
+app.post('/api/reports', upload.single('attachment'), (req: Request, res: Response) => {
   const { issueType, description, contactName, contactEmail } = req.body;
+  const attachmentUrl = req.file ? `/uploads/${req.file.filename}` : '/uploads/placeholder.txt';
 
   const newReport: Report = {
     id: uuidv4(),
@@ -123,7 +127,7 @@ app.post('/api/reports', (req: Request, res: Response) => {
     contactEmail: contactEmail || '',
     status: 'NEW',
     createdAt: Date.now(),
-    attachmentUrl: '/uploads/placeholder.txt'
+    attachmentUrl
   };
 
   reports.push(newReport);

@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { apiClient } from '../api/client';
@@ -27,8 +29,8 @@ type FormData = z.infer<typeof schema>;
 
 export function ReportPage() {
   const { auth } = useAuth();
+  const navigate = useNavigate();
   const [submitError, setSubmitError] = useState('');
-  const [submitSuccess, setSubmitSuccess] = useState(false);
 
   const {
     register,
@@ -41,14 +43,15 @@ export function ReportPage() {
 
   const onSubmit = async (data: FormData) => {
     setSubmitError('');
-    setSubmitSuccess(false);
+
     try {
       const { attachment, ...reportPayload } = data;
       const file = attachment?.[0];
       const attachmentUrl = file ? `/uploads/${file.name}` : '/uploads/placeholder.txt';
       await apiClient.createReport({ ...reportPayload, contactEmail: auth?.email ?? '', attachmentUrl });
-      setSubmitSuccess(true);
+      toast.success('Report submitted successfully!');
       reset();
+      navigate(auth?.status === 'admin' ? '/reports' : '/my-reports');
     } catch {
       setSubmitError('Failed to submit report. Please try again.');
     }
@@ -60,9 +63,6 @@ export function ReportPage() {
 
       <p className="form-required-note"><span className="required-star">*</span> Required fields</p>
 
-      {submitSuccess && (
-        <div className="alert alert-success">Report submitted successfully!</div>
-      )}
       {submitError && (
         <div className="alert alert-error">{submitError}</div>
       )}

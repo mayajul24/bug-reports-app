@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, NavLink, Navigate, useNavigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import { LoginPage } from './pages/LoginPage';
 import { ReportPage } from './pages/ReportPage';
 import { ReportsPage } from './pages/ReportsPage';
@@ -71,6 +72,7 @@ function App() {
     <BrowserRouter>
       <AuthProvider>
         <div className="app">
+          <Toaster position="top-right" />
           <AppNav />
           <main className="main">
             <Routes>

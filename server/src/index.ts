@@ -76,7 +76,8 @@ const reports: Report[] = [
 const userStatuses: UserStatusEntry[] = [
   { email: 'admin@example.com', status: 'admin' },
   { email: 'blocked@example.com', status: 'blacklisted', reason: 'Account suspended due to policy violation' },
-  { email: 'spam@test.com', status: 'blacklisted', reason: 'Multiple spam reports received' }
+  { email: 'spam@test.com', status: 'blacklisted', reason: 'Multiple spam reports received' },
+  {email: 'mayajulius@gmail.com', status: 'allowed' }
 ];
 
 function isAdmin(email: string): boolean {

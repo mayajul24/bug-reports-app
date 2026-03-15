@@ -1,5 +1,6 @@
 import { Report } from '../types/Report';
 import { API_BASE_URL } from '../config';
+import { PLACEHOLDER_ATTACHMENT } from '../constants';
 import { StatusBadge } from './StatusBadge';
 
 interface ReportCardProps {
@@ -30,7 +31,7 @@ export function ReportCard({ report, onApprove, onResolve }: ReportCardProps) {
         {report.approvedAt && (
           <span><strong>Approved:</strong> {new Date(report.approvedAt).toLocaleDateString()}</span>
         )}
-        {report.attachmentUrl && report.attachmentUrl !== '/uploads/placeholder.txt' && (
+        {report.attachmentUrl && report.attachmentUrl !== PLACEHOLDER_ATTACHMENT && (
           <span>
             <strong>Attachment:</strong>{' '}
             <a href={`${API_BASE_URL}${report.attachmentUrl}`} target="_blank" rel="noreferrer">

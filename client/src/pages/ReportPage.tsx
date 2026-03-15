@@ -47,7 +47,7 @@ export function ReportPage() {
     try {
       const { attachment, ...reportPayload } = data;
       const file = attachment?.[0];
-      await apiClient.createReport({ ...reportPayload, contactEmail: auth?.email ?? '', attachmentUrl: '' }, file);
+      await apiClient.createReport({ ...reportPayload, contactEmail: auth?.email ?? '', attachmentUrl: '' }, file ?? undefined);
       toast.success('Report submitted successfully!');
       reset();
       navigate(auth?.status === 'admin' ? '/reports' : '/my-reports');

@@ -69,8 +69,8 @@ export function ReportsPage() {
 
       {status === 'loading' && <div className="spinner" />}
 
-      {error && (
-        <div className="alert alert-error" style={{ marginTop: '1rem' }}>{error}</div>
+      {status === 'error' && (
+        <div className="alert alert-error">{error}</div>
       )}
 
       {status === 'success' && reports.length === 0 && (

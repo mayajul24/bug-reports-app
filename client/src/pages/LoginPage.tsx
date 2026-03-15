@@ -39,8 +39,8 @@ export function LoginPage() {
       } else {
         navigate('/report');
       }
-    } catch {
-      setError('Unable to verify your account. Please try again.');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unable to verify your account. Please try again.');
     } finally {
       setLoading(false);
     }

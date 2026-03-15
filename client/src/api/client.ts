@@ -22,7 +22,8 @@ class ApiClient {
     });
 
     if (!response.ok) {
-      throw new Error(`API Error: ${response.status} ${response.statusText}`);
+      const body = await response.json().catch(() => ({}));
+      throw new Error(body.error ?? `API Error: ${response.status} ${response.statusText}`);
     }
 
     return response.json();
@@ -35,7 +36,8 @@ class ApiClient {
   async createReport(payload: CreateReportPayload, file?: File): Promise<Report> {
     if (file) {
       const formData = new FormData();
-      Object.entries(payload).forEach(([key, value]) => formData.append(key, value));
+      const { attachmentUrl: _, ...rest } = payload;
+      Object.entries(rest).forEach(([key, value]) => formData.append(key, value));
       formData.append('attachment', file);
       const response = await fetch(`${this.baseUrl}/api/reports`, { method: 'POST', body: formData });
       if (!response.ok) throw new Error(`API Error: ${response.status} ${response.statusText}`);

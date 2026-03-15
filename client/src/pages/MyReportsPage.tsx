@@ -20,6 +20,8 @@ export function MyReportsPage() {
 
   useEffect(() => {
     const fetchMyReports = async () => {
+      setStatus('loading');
+      setError('');
       try {
         const all = await apiClient.getReports();
         setReports(all.filter(r => r.contactEmail === auth?.email));

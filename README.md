@@ -1,17 +1,33 @@
 # Bug Reporter - Take-Home Assignment
 
-## Quick Start
+## Setup & Run
 
 ```bash
-# Install dependencies
+# Install root dependencies
 npm install
 
-# Run both client and server
+# Install client dependencies
+cd client && npm install
+
+# Install server dependencies
+cd ../server && npm install
+```
+
+Then from the root:
+
+```bash
 npm run dev
 ```
 
 - **Client:** http://localhost:5173
 - **Server:** http://localhost:4000
+
+## Test Credentials
+
+| Email | Password | Role |
+|-------|----------|------|
+| admin@example.com | admin123 | Admin |
+| user@example.com | password123 | User |
 
 ## Project Structure
 
@@ -19,20 +35,26 @@ npm run dev
 bug-reporter-starter/
 ├── client/          # React + TypeScript (Vite)
 │   └── src/
-│       ├── api/     # API client
-│       ├── pages/   # Page components
-│       └── types/   # TypeScript types
+│       ├── api/         # API client
+│       ├── components/  # Shared components
+│       ├── context/     # Auth context
+│       ├── hooks/       # Custom hooks (usePagination)
+│       ├── pages/       # Page components
+│       └── types/       # TypeScript types
 └── server/          # Express + TypeScript
     ├── src/         # Server code
-    └── uploads/     # Static uploads folder
+    └── uploads/     # Uploaded attachments
 ```
 
 ## API Endpoints
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
+| POST | `/api/login` | Authenticate with email + password |
 | GET | `/api/reports` | Get all reports |
-| POST | `/api/reports` | Create a new report |
+| POST | `/api/reports` | Create a new report (multipart/form-data) |
+| POST | `/api/reports/:id/approve` | Approve a report (admin only) |
+| POST | `/api/reports/:id/resolve` | Resolve a report (admin only) |
 | GET | `/api/health` | Health check |
 
 ## Data Model

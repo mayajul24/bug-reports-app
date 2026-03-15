@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { apiClient } from '../api/client';
 import { Report, FetchStatus } from '../types/Report';
@@ -7,8 +7,12 @@ import { ReportCard } from '../components/ReportCard';
 export function ReportsPage() {
   const { auth } = useAuth();
   const [reports, setReports] = useState<Report[]>([]);
-  const [status, setStatus] = useState<FetchStatus>('idle');
+  const [status, setStatus] = useState<FetchStatus>('loading');
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    void fetchReports();
+  }, []);
 
   const fetchReports = async () => {
     setStatus('loading');
@@ -44,12 +48,15 @@ export function ReportsPage() {
 
   return (
     <div className="page">
-      <h1>Reports List</h1>
-      <p className="form-required-note">Logged in as {auth?.email} (admin)</p>
-
-      <button className="btn btn-secondary" onClick={fetchReports} disabled={status === 'loading'}>
-        {status === 'loading' ? 'Loading...' : 'Load Reports'}
-      </button>
+      <div className="page-header">
+        <div>
+          <h1>Reports List</h1>
+          <p className="form-required-note">Logged in as {auth?.email} (admin)</p>
+        </div>
+        <button className="btn-refresh" onClick={fetchReports} disabled={status === 'loading'}>
+          {status === 'loading' ? '↻' : '↻ Refresh'}
+        </button>
+      </div>
 
       {status === 'loading' && <div className="spinner" />}
 

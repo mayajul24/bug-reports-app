@@ -31,8 +31,8 @@ interface Report {
   attachmentUrl: string;
 }
 
-interface UserStatusEntry {
-  email: string;
+interface UserEntry {
+  password: string;
   status: 'allowed' | 'blacklisted' | 'admin';
   reason?: string;
 }
@@ -73,16 +73,16 @@ const reports: Report[] = [
   }
 ];
 
-const userStatuses: UserStatusEntry[] = [
-  { email: 'admin@example.com', status: 'admin' },
-  { email: 'blocked@example.com', status: 'blacklisted', reason: 'Account suspended due to policy violation' },
-  { email: 'spam@test.com', status: 'blacklisted', reason: 'Multiple spam reports received' },
-  {email: 'mayajulius@gmail.com', status: 'allowed' }
-];
+const users = new Map<string, UserEntry>([
+  ['admin@example.com', { password: 'admin123', status: 'admin' }],
+  ['user@example.com', { password: 'password123', status: 'allowed' }],
+  ['blocked@example.com', { password: 'password123', status: 'blacklisted', reason: 'Account suspended due to policy violation' }],
+  ['spam@test.com', { password: 'password123', status: 'blacklisted', reason: 'Multiple spam reports received' }],
+]);
 
 function isAdmin(email: string): boolean {
   if (!email) return false;
-  return userStatuses.some(user => user.email === email && user.status === 'admin');
+  return users.get(email)?.status === 'admin';
 }
 
 function updateReportStatus(id: string, status: 'APPROVED' | 'RESOLVED') {
@@ -135,11 +135,14 @@ app.post('/api/reports/:id/approve', (req, res) => handleStatusUpdate(req, res, 
 // POST /api/reports/:id/resolve
 app.post('/api/reports/:id/resolve', (req, res) => handleStatusUpdate(req, res, 'RESOLVED'));
 
-// GET /api/check-status - Check user status by email
-app.get('/api/check-status', (req: Request, res: Response) => {
-  const { email } = req.query;
-  const entry = userStatuses.find(user => user.email === email);
-  if (!entry) return res.status(401).json({ error: 'Invalid email or password' });
+// POST /api/login - Authenticate user with email and password
+app.post('/api/login', (req: Request, res: Response) => {
+  const { email, password } = req.body;
+  const entry = users.get(email);
+
+  if (!entry || entry.password !== password) {
+    return res.status(401).json({ error: 'Invalid email or password' });
+  }
 
   res.json({ status: entry.status, reason: entry.reason });
 });

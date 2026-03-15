@@ -67,8 +67,11 @@ class ApiClient {
     });
   }
 
-  async checkStatus(email: string): Promise<CheckStatusResponse> {
-    return this.request<CheckStatusResponse>(`/api/check-status?email=${encodeURIComponent(email)}`);
+  async login(email: string, password: string): Promise<CheckStatusResponse> {
+    return this.request<CheckStatusResponse>('/api/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
   }
 }
 

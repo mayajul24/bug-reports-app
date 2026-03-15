@@ -25,7 +25,7 @@ export function LoginPage() {
     setLoading(true);
 
     try {
-      const result = await apiClient.checkStatus(email);
+      const result = await apiClient.login(email, password);
 
       if (result.status === 'blacklisted') {
         setError(result.reason ?? 'Your account has been blacklisted.');

@@ -1,14 +1,22 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { apiClient } from '../api/client';
 import { Report, FetchStatus } from '../types/Report';
 import { ReportCard } from '../components/ReportCard';
+import { usePagination } from '../hooks/usePagination';
 
 export function MyReportsPage() {
   const { auth } = useAuth();
   const [reports, setReports] = useState<Report[]>([]);
   const [status, setStatus] = useState<FetchStatus>('loading');
   const [error, setError] = useState('');
+  const reportsListRef = useRef<HTMLDivElement>(null);
+
+  const { currentPage, totalPages, paginatedItems, changePage } = usePagination(reports);
+
+  useEffect(() => {
+    reportsListRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [currentPage]);
 
   useEffect(() => {
     const fetchMyReports = async () => {
@@ -40,11 +48,33 @@ export function MyReportsPage() {
       )}
 
       {status === 'success' && reports.length > 0 && (
-        <div className="report-list">
-          {reports.map(report => (
-            <ReportCard key={report.id} report={report} />
-          ))}
-        </div>
+        <>
+          <div className="report-list" ref={reportsListRef}>
+            {paginatedItems.map(report => (
+              <ReportCard key={report.id} report={report} />
+            ))}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="pagination">
+              <button
+                className="btn-page"
+                onClick={() => changePage(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                ← Prev
+              </button>
+              <span className="page-info">Page {currentPage} of {totalPages}</span>
+              <button
+                className="btn-page"
+                onClick={() => changePage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                Next →
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

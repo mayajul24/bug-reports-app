@@ -1,22 +1,31 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { apiClient } from '../api/client';
 import { Report, FetchStatus } from '../types/Report';
 import { ReportCard } from '../components/ReportCard';
+import { usePagination } from '../hooks/usePagination';
 
 export function ReportsPage() {
   const { auth } = useAuth();
   const [reports, setReports] = useState<Report[]>([]);
   const [status, setStatus] = useState<FetchStatus>('loading');
   const [error, setError] = useState('');
+  const reportsListRef = useRef<HTMLDivElement>(null);
+
+  const { currentPage, totalPages, paginatedItems: paginatedReports, changePage, reset } = usePagination(reports);
 
   useEffect(() => {
     void fetchReports();
   }, []);
 
+  useEffect(() => {
+    reportsListRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [currentPage]);
+
   const fetchReports = async () => {
     setStatus('loading');
     setError('');
+    reset();
     try {
       const data: Report[] = await apiClient.getReports();
       setReports(data);
@@ -69,11 +78,33 @@ export function ReportsPage() {
       )}
 
       {status === 'success' && reports.length > 0 && (
-        <div className="report-list">
-          {reports.map(report => (
-            <ReportCard key={report.id} report={report} onApprove={handleApprove} onResolve={handleResolve} />
-          ))}
-        </div>
+        <>
+          <div className="report-list" ref={reportsListRef}>
+            {paginatedReports.map(report => (
+              <ReportCard key={report.id} report={report} onApprove={handleApprove} onResolve={handleResolve} />
+            ))}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="pagination">
+              <button
+                className="btn-page"
+                onClick={() => changePage(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                ← Prev
+              </button>
+              <span className="page-info">Page {currentPage} of {totalPages}</span>
+              <button
+                className="btn-page"
+                onClick={() => changePage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                Next →
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

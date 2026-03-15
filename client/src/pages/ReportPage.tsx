@@ -3,13 +3,13 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { apiClient } from '../api/client';
+import { useAuth } from '../context/AuthContext';
 import { ALLOWED_FILE_TYPES, MAX_FILE_SIZE } from '../constants';
 
 const schema = z.object({
   issueType: z.string().min(1, 'Please select an issue type'),
   description: z.string().min(10, 'Description must be at least 10 characters'),
   contactName: z.string().min(2, 'Name must be at least 2 characters'),
-  contactEmail: z.email('Please enter a valid email address'),
   attachment: z
     .custom<FileList>()
     .optional()
@@ -26,6 +26,7 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export function ReportPage() {
+  const { auth } = useAuth();
   const [submitError, setSubmitError] = useState('');
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
@@ -43,7 +44,9 @@ export function ReportPage() {
     setSubmitSuccess(false);
     try {
       const { attachment, ...reportPayload } = data;
-      await apiClient.createReport(reportPayload, attachment?.[0]);
+      const file = attachment?.[0];
+      const attachmentUrl = file ? `/uploads/${file.name}` : '/uploads/placeholder.txt';
+      await apiClient.createReport({ ...reportPayload, contactEmail: auth?.email ?? '', attachmentUrl });
       setSubmitSuccess(true);
       reset();
     } catch {
@@ -104,18 +107,6 @@ export function ReportPage() {
             {...register('contactName')}
           />
           {errors.contactName && <span className="field-error">{errors.contactName.message}</span>}
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="contactEmail">Your Email <span className="required-star">*</span></label>
-          <input
-            type="email"
-            id="contactEmail"
-            placeholder="you@example.com"
-            className={errors.contactEmail ? 'input-error' : ''}
-            {...register('contactEmail')}
-          />
-          {errors.contactEmail && <span className="field-error">{errors.contactEmail.message}</span>}
         </div>
 
         <div className="form-group">

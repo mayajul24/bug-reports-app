@@ -69,7 +69,10 @@ export function LoginPage() {
             type="password"
             placeholder="Enter your password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              if (e.target.value.length >= 8) setPasswordError('');
+            }}
             required
           />
           {passwordError

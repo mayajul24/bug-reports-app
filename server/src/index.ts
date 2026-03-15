@@ -138,11 +138,9 @@ app.post('/api/reports/:id/resolve', (req, res) => handleStatusUpdate(req, res, 
 app.get('/api/check-status', (req: Request, res: Response) => {
   const { email } = req.query;
   const entry = userStatuses.find(user => user.email === email);
-  if (entry) {
-    res.json({ status: entry.status, reason: entry.reason });
-  } else {
-    res.json({ status: 'allowed' });
-  }
+  if (!entry) return res.status(401).json({ error: 'Invalid email or password' });
+
+  res.json({ status: entry.status, reason: entry.reason });
 });
 
 // Health check

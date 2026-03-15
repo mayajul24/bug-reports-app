@@ -9,11 +9,19 @@ export function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setPasswordError('');
+
+    if (password.length < 8) {
+      setPasswordError('Password must be at least 8 characters.');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -64,6 +72,10 @@ export function LoginPage() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+          {passwordError
+            ? <span className="field-error">{passwordError}</span>
+            : <span className="validation-hint">At least 8 characters</span>
+          }
         </div>
         <button type="submit" className="btn btn-primary" disabled={loading}>
           {loading ? 'Checking...' : 'Login'}
